@@ -13,10 +13,9 @@
 #include <fstream>
 #include <istream>
 #include <sstream>
+
 #include <string>
 #include <vector>
-
-using namespace std;
 
 namespace obj
 {
@@ -51,37 +50,37 @@ namespace obj
 		std::vector<face> faces;
 	};
 
-	static void read_vertex(mesh &m, istream &is)
+	static void read_vertex(mesh &m, std::istream &is)
 	{
 		m.vertices.push_back(mesh::vertex());
 		auto &v = m.vertices.back();
 		is >> v.x >> v.y >> v.z;
 	}
 
-	static void read_texcoord(mesh &m, istream &is)
+	static void read_texcoord(mesh &m, std::istream &is)
 	{
 		m.texcoords.push_back(mesh::texcoord());
 		auto &vt = m.texcoords.back();
 		is >> vt.s >> vt.t;
 	}
 
-	static void read_normal(mesh &m, istream &is)
+	static void read_normal(mesh &m, std::istream &is)
 	{
 		m.normals.push_back(mesh::normal());
 		auto &vn = m.normals.back();
 		is >> vn.x >> vn.y >> vn.z;
 	}
 
-	static int read_index(istream &is)
+	static int read_index(std::istream &is)
 	{
-		string token;
-		getline(is, token, '/');
+		std::string token;
+		std::getline(is, token, '/');
 		int index = 0;
-		istringstream(token) >> index;
+		std::istringstream(token) >> index;
 		return index - 1;
 	}
 
-	static void read_face_vertex(mesh &m, istream &is)
+	static void read_face_vertex(mesh &m, std::istream &is)
 	{
 		auto &f = m.faces.back();
 		f.vertices.push_back(mesh::face::vertex());
@@ -91,17 +90,20 @@ namespace obj
 		fv.vn = read_index(is);
 	}
 
-	static void read_face(mesh &m, istream &is)
+	static void read_face(mesh &m, std::istream &is)
 	{
 		m.faces.push_back(mesh::face());
-		string token;
+		std::string token;
 		while (is >> token)
-			read_face_vertex(m, istringstream(token));
+		{
+			auto token_stream = std::istringstream(token);
+			read_face_vertex(m, token_stream);
+		}
 	}
 
-	static void read_line(mesh &m, istream &is)
+	static void read_line(mesh &m, std::istream &is)
 	{
-		string type;
+		std::string type;
 		is >> type;
 		if (type == "v")
 			read_vertex(m, is);
@@ -113,15 +115,19 @@ namespace obj
 			read_face(m, is);
 	}
 
-	static void read_lines(mesh &m, istream &is)
+	static void read_lines(mesh &m, std::istream &is)
 	{
-		string line;
+		std::string line;
 		while (getline(is, line))
-			read_line(m, istringstream(line));
+		{
+			auto line_stream = std::istringstream(line);
+			read_line(m, line_stream);
+		}
 	}
 
 	void read(mesh &m, const char *filename)
 	{
-		read_lines(m, ifstream(filename));
+		auto filename_stream = std::ifstream(filename);
+		read_lines(m, filename_stream);
 	}
 }
